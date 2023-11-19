@@ -2,25 +2,25 @@
   "users": [
     {
       "id": 1,
-      "email": "garilizbeth@gmail.com",
+      "correo": "garilizbeth@gmail.com",
       "password": "1234567",
       "username": "Gari Lizbeth"
     },
     {
       "id": 2,
-      "email": "victoriagaribay@gmail.com",
+      "correo": "victoriagaribay@gmail.com",
       "password": "12345678",
       "username": "Victoria Garibay"
     },
     {
       "id": 3,
-      "email": "alira@gmail.com",
+      "correo": "alira@gmail.com",
       "password": "123456",
       "username": "Angelica Lira"
     },
     {
       "id": 4,
-      "email": "theo@gmail.com",
+      "correo": "theo@gmail.com",
       "password": "123456",
       "username": "Theo Luc Hunter"
     }

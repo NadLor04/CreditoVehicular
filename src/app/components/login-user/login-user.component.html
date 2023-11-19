@@ -16,10 +16,10 @@
         <div>
           <label for="exampleInputEmail1" class="form-label">Correo electrónico</label>
         </div>
-        <input type="email" formControlName="email" autocomplete="off" />
+        <input type="email" formControlName="correo" autocomplete="off" />
         <div *ngIf="
-                     myForm.get('email')?.hasError('required') &&
-                     myForm.get('email')?.touched
+                     myForm.get('correo')?.hasError('required') &&
+                     myForm.get('correo')?.touched
                    ">
           <span class="mda-form-msg"> Este campo es obligatorio </span>
         </div>

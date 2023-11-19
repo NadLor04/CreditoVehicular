@@ -1,20 +1,50 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/enviroments/enviroment';
 import { HttpClient } from '@angular/common/http';
-import { User } from 'src/app/model/user';
+import { Credentials, User } from 'src/app/model/user';
+import { Subject, Observable } from 'rxjs';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  basePath: string = environment.basePath;
-  constructor(private http: HttpClient) {}
-  getUsers() {
-    return this.http.get<User[]>(this.basePath);
+  usuario$!: Subject<User>;
+  id!: number;
+  isLoggedIn: boolean = false;
+  dataUsers$!: Subject<User[]>;
+  arrayUsers: User[] = [];
+  keepLogin: boolean = false;
+
+  constructor(private http: HttpClient, private router: Router, private snackbar: MatSnackBar) {
+    this.usuario$ = new Subject<User>();
+    this.dataUsers$ = new Subject<User[]>();
   }
-  addUser(user: User) {
-    return this.http.post<User>(this.basePath, user);
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${environment.basePath}/users`);
   }
-  getUserById(id: any){
-    return this.http.get<User>(`${this.basePath}/${id}`);
+  addUser(obj: User) {
+    return this.http.post<User>(`${environment.basePath}/users`, obj);
+  }
+
+  getUserById(id: any): Observable<User> {
+    return this.http.get<User>(`${environment.basePath}/users/${id}`);
+  }
+
+  ingresar(cred: Credentials): Observable<User> {
+
+    for (let user of this.arrayUsers) {
+      if (user.correo == cred.correo && user.password == cred.password) {
+
+        this.usuario$.next(user);
+        this.id = user.id;
+        this.snackbar.open('Login correcto!', '', {
+          duration: 2000,
+        });
+        this.router.navigate(['/home', user.id]);
+      }
+    }
+
+    return this.usuario$;
   }
 }

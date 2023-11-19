@@ -9,7 +9,6 @@ import { Observable, Subject } from 'rxjs';
 })
 export class EntidadService {
 
-  basePath: string = environment.entidadPath;
   entidad!: Entidad;
   entidad$!: Subject<Entidad>;
 
@@ -18,13 +17,13 @@ export class EntidadService {
   }
 
   getEntidades() {
-    return this.http.get<Entidad[]>(this.basePath);
+    return this.http.get<Entidad[]>(`${environment.basePath}/entidades`);
   }
   addEntidad(user: Entidad) {
-    return this.http.post<Entidad>(this.basePath, user);
+    return this.http.post<Entidad>(`${environment.basePath}/entidades`, user);
   }
   getEntidadById(id: number): Observable<Entidad> {
-    return this.http.get<Entidad>(`${this.basePath}/${id}`);
+    return this.http.get<Entidad>(`${environment.basePath}/entidades/${id}`);
   }
   
 }

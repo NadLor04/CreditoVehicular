@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 import { Cotizacion, RowCrono } from 'src/app/model/cotizacion';
 import { Entidad } from 'src/app/model/entidad';
 import { UserService } from 'src/app/services/user.service';
-import { addDays, addMonths, format, parseISO } from 'date-fns'; // Importa las funciones necesarias de date-fns
+import { addDays, addMonths, format } from 'date-fns'; // Importa las funciones necesarias de date-fns
 
 @Component({
   selector: 'app-simulation',
