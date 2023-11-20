@@ -19,9 +19,7 @@ export class EntidadService {
   getEntidades() {
     return this.http.get<Entidad[]>(`${environment.basePath}/entidades`);
   }
-  addEntidad(user: Entidad) {
-    return this.http.post<Entidad>(`${environment.basePath}/entidades`, user);
-  }
+  
   getEntidadById(id: number): Observable<Entidad> {
     return this.http.get<Entidad>(`${environment.basePath}/entidades/${id}`);
   }
