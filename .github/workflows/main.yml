@@ -35,6 +35,10 @@ jobs:
       - name: Build app bundle
         run: npm run build:prod
 
+     # Route file renaming
+      - name: Rename index routing
+        run: mv dist/tf-finanzas/index.html dist/tf-finanzas/404.html
+
     # Deploy to Gb pages
       - name: Deploy to Pages
         uses: crazy-max/ghaction-github-pages@v4.0.0
