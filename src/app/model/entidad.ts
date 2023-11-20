@@ -1,9 +1,9 @@
 export interface Entidad {
-    id: number
+    $id: number
     name:string
-    seguro_deg: number
-    seguro_vehi: number
+    seguroDeg: number
+    seguroVehi: number
     comision: number
-    tasa_max: number
-    tasa_min: number
+    tasaMax: number
+    tasaMin: number
 }

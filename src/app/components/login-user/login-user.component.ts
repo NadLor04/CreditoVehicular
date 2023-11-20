@@ -59,15 +59,15 @@ export class LoginUserComponent {
 
       const credentials: Credentials = {
 
-        "correo": this.myForm.get('correo')?.value,
+        "email": this.myForm.get('correo')?.value,
         "password": this.myForm.get('password')?.value,
 
       }
       console.log(credentials);
       console.log(this.arrayUsers);
-      
+
       const exist = this.userService.arrayUsers.find(user =>
-        (user.correo === credentials.correo && user.password === credentials.password));
+        (user.email === credentials.email && user.password === credentials.password));
 
       if (!exist) {
         this.snackbar.open('Las credenciales son incorrectas.', '', {

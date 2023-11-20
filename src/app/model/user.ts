@@ -1,18 +1,27 @@
 export interface User{
-    id: number
-    correo:string
+    $id: number
+    email:string
     password:string
     username:string
-    lastname:string
-    name:string
+    apellido:string
+    nombre:string
     dni:string
-    birth: string
-    phone:string
-    profession: string
+    telefono:string
     income: number
 }
 
 export interface Credentials {
-    correo: string;
+    email: string;
     password: string;
   }
+
+
+  /*
+  *[{"id":1,
+  * "nombre":"string",
+  * "apellido":"string",
+  * "dni":"stringst",
+  * "telefono":"string",
+  * "email":"user@example.com",
+  * "password":"string"}]
+  * */

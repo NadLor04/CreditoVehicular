@@ -7,7 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { Finance } from 'financejs';
 import { Observable } from 'rxjs';
-import { Cotizacion, RowCrono } from 'src/app/model/cotizacion';
+import { Credito, Cuota} from 'src/app/model/cotizacion';
 import { Entidad } from 'src/app/model/entidad';
 import { UserService } from 'src/app/services/user.service';
 import { addDays, addMonths, format } from 'date-fns'; // Importa las funciones necesarias de date-fns
@@ -19,7 +19,7 @@ import { addDays, addMonths, format } from 'date-fns'; // Importa las funciones 
 })
 export class SimulationComponent implements OnInit {
 
-  id!: number;
+  $id!: number;
   ent!: number;
   entidad$!: Observable<Entidad>;
   entidad !: Entidad;
@@ -56,32 +56,71 @@ export class SimulationComponent implements OnInit {
   tasa_efectiva_mensual!: number;
   tasa_efectiva_anual!: number;
 
-  frm!: Cotizacion;
+  frm!: Credito;
 
-  displayedColumns: string[] = ['period', 'fecha', 'saldoini', 'amortization', 'intereses', 'seguro_degr', 'seguro_vehi', 'saldofini', 'cuota_mensual'];
+  displayedColumns: string[] = ['nCuota', 'fecha', 'saldoInicial', 'amortización', 'interes', 'seguroDesgravamen', 'seguroVehicular', 'saldoFinal', 'montoCuota'];
+  /*
+  * export interface Cotizacion {
+  user_id: number
+  moneda: string
+ // entidad: string
+  precio_venta: number
+  cuota_inicial: number
+  tipo_tasa: string
+  tasa: number
+  plazo: number
+  perInitial: number
+  monto_solicitar: number
+  monto_financiar: number
+  cuota_mensual: number
+  seguro_vehicular: number
+  seguro_degravamen: number
+  tipo_gracia: string
+  periodo_gracia: number
+  comision: number
+  fecha: Date
+  tea: number
+  tna: number
+}
 
-  rowscrono: RowCrono[] = [];
+export interface RowCrono {
+  id: number
+  n_cuota: number
+  fecha: string
+  saldo_inicial: string
+  amortizatión: string
+  interes: string
+  seguro_degravamen: string
+  seguro_vehicular: string
+  saldo_final: string
+  monto_cuota: string
+
+}
+
+  * */
+
+  rowscrono: Cuota[] = [];
   flujos: number[] = []
   van!: number;
   tir!: number;
   selectTipo: string = '';
-  dataSource !: MatTableDataSource<RowCrono>;
+  dataSource !: MatTableDataSource<Cuota>;
   fecha: string = '';
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit() {
     this.route.parent?.params.subscribe((params: Params) => {
-      this.id = +params['id'];
+      this.$id = +params['id'];
     });
 
     this.route.params.subscribe((params: Params) => {
       this.ent = +params['et'];
     });
 
-    this.servUsu.getUserById(this.id)
+    this.servUsu.getUserById(this.$id)
       .subscribe((data) => {
-        this.username = data.username;
+        this.username = data.nombre + ' ' +data.apellido;
       })
 
     this.serv.getEntidadById(this.ent).subscribe({
@@ -140,8 +179,8 @@ export class SimulationComponent implements OnInit {
 
   validarMoneda() {
 
-    this.tmaximo = this.entidad.tasa_max;
-    this.tminimo = this.entidad.tasa_min;
+    this.tmaximo = this.entidad.tasaMax;
+    this.tminimo = this.entidad.tasaMin;
 
     if (!this.myForm.get('moneda')?.invalid) {
       this.simbo = this.myForm.get('moneda')!.value.split(' ')[0];
@@ -168,37 +207,36 @@ export class SimulationComponent implements OnInit {
       let fechaPrimeraCuota: Date = new Date(fechaPrimeraCuotaString);
       fechaPrimeraCuota = addDays(fechaPrimeraCuota, 1);
 
-      const formu: Cotizacion = {
-        client_id: this.id,
+      const formu: Credito = {
+        user_id: this.$id,
         fecha: fechaPrimeraCuota,
         moneda: this.myForm.get('moneda')!.value,
-        entidad: this.entidad.name,
+        //entidad: this.entidad.name,
 
-        price: this.myForm.get('price')!.value,
-        initial: this.myForm.get('cuota_initial')!.value,
+        precio_venta: this.myForm.get('price')!.value,
+        cuota_inicial: this.myForm.get('cuota_initial')!.value,
         tasa: this.myForm.get('tasa')!.value,
         tipo_tasa: this.myForm.get('tipo_tasa')!.value,
         comision: this.entidad.comision,
-        seguro_degravamen: this.entidad.seguro_deg,
-        seguro_vehicular: this.entidad.seguro_vehi,
+        seguro_desgravamen: this.entidad.seguroDeg,
+        seguro_vehicular: this.entidad.seguroVehi,
         plazo: this.myForm.get('plazo')!.value,
         tipo_gracia: this.myForm.get('tipo')!.value,
         periodo_gracia: this.myForm.get('periodo_gracia')!.value,
-
         perInitial: 0,
         monto_financiar: 0,
-        monto_solicitado: 0,
-        cuota: 0,
+        monto_solicitar: 0,
+        cuota_mensual: 0,
         tea: 0,
         tna: 0
       }
 
       //Calcular el porcentaje de cuota inicial
-      formu.perInitial = formu.initial / formu.price * 100;
+      formu.perInitial = formu.cuota_inicial / formu.precio_venta * 100;
 
       // Calcular el monto del prestamo
-      formu.monto_solicitado = formu.price - formu.initial;
-      formu.monto_financiar = 0.5 * formu.monto_solicitado;
+      formu.monto_solicitar = formu.precio_venta - formu.cuota_inicial;
+      formu.monto_financiar = 0.5 * formu.monto_solicitar;
 
       if (formu.tipo_tasa == 'Tasa Efectiva Anual') {
         this.tasa_efectiva_anual = formu.tasa / 100;
@@ -211,10 +249,10 @@ export class SimulationComponent implements OnInit {
       formu.tea = this.tasa_efectiva_anual*100;
 
       // Calcular la tasa mensual + tasa seguro degravamen
-      const tasa_mensual_mas_seguro = this.tasa_efectiva_mensual + formu.seguro_degravamen / 100;
+      const tasa_mensual_mas_seguro = this.tasa_efectiva_mensual + formu.seguro_desgravamen / 100;
 
       // Calcular el valor del seguro del inmueble
-      const valor_seg_vehi = formu.price * (formu.seguro_vehicular / 100) / 12;
+      const valor_seg_vehi = formu.precio_venta * (formu.seguro_vehicular / 100) / 12;
 
       // Interes nominal anual
       this.tasa_nominal_anual = ((Math.pow((this.tasa_efectiva_anual + 1), (1 / 12)) - 1) * 12);
@@ -228,7 +266,7 @@ export class SimulationComponent implements OnInit {
           this.ningun_plazo = false;
           for (let i = 0; i < formu.periodo_gracia; i++) {
             // Se calcula el seguro_degravamen por cada periodo
-            this.valor_seg_degra = this.saldo_inicial * formu.seguro_degravamen / 100;
+            this.valor_seg_degra = this.saldo_inicial * formu.seguro_desgravamen / 100;
 
             // Se calcula el interes pagado por cada periodo
             this.interes_pagado = this.saldo_inicial * this.tasa_nominal_anual / 12;
@@ -241,14 +279,14 @@ export class SimulationComponent implements OnInit {
           const new_time = formu.plazo - formu.periodo_gracia;
 
           // Calcular el pago periodico
-          formu.cuota = (this.saldo_inicial * (tasa_mensual_mas_seguro * (Math.pow((1 + tasa_mensual_mas_seguro), new_time))) / ((Math.pow((1 + tasa_mensual_mas_seguro), new_time)) - 1)) + valor_seg_vehi;
+          formu.cuota_mensual = (this.saldo_inicial * (tasa_mensual_mas_seguro * (Math.pow((1 + tasa_mensual_mas_seguro), new_time))) / ((Math.pow((1 + tasa_mensual_mas_seguro), new_time)) - 1)) + valor_seg_vehi;
 
         }
         else if (formu.tipo_gracia == 'Parcial') {
           this.ningun_plazo = false;
           const new_time = formu.plazo - formu.periodo_gracia;
           // Calcular el pago periodico
-          formu.cuota = (formu.monto_financiar * (tasa_mensual_mas_seguro * (Math.pow((1 + tasa_mensual_mas_seguro), new_time))) / ((Math.pow((1 + tasa_mensual_mas_seguro), new_time)) - 1)) + valor_seg_vehi;
+          formu.cuota_mensual = (formu.monto_financiar * (tasa_mensual_mas_seguro * (Math.pow((1 + tasa_mensual_mas_seguro), new_time))) / ((Math.pow((1 + tasa_mensual_mas_seguro), new_time)) - 1)) + valor_seg_vehi;
         }
         else if (formu.tipo_gracia == 'Ninguno') {
 
@@ -257,17 +295,17 @@ export class SimulationComponent implements OnInit {
           this.myForm.get('periodo_gracia')?.setValue(0.00);
 
           // Calcular el pago periodico
-          formu.cuota = (formu.monto_financiar * (tasa_mensual_mas_seguro * (Math.pow((1 + tasa_mensual_mas_seguro), formu.plazo))) / ((Math.pow((1 + tasa_mensual_mas_seguro), formu.plazo)) - 1)) + valor_seg_vehi;
+          formu.cuota_mensual = (formu.monto_financiar * (tasa_mensual_mas_seguro * (Math.pow((1 + tasa_mensual_mas_seguro), formu.plazo))) / ((Math.pow((1 + tasa_mensual_mas_seguro), formu.plazo)) - 1)) + valor_seg_vehi;
 
         }
       }
 
-      if (formu.initial !== null && formu.price !== null) {
+      if (formu.cuota_inicial !== null && formu.precio_venta !== null) {
         this.myForm.get('porc_cuotaini')?.setValue(formu.perInitial.toFixed(3));
       }
 
       this.myForm.get('monto_prestamo')?.setValue(formu.monto_financiar.toFixed(2));
-      this.myForm.get('cuota')?.setValue(formu.moneda.split(' ')[0] + ' ' + formu.cuota.toFixed(3));
+      this.myForm.get('cuota')?.setValue(formu.moneda.split(' ')[0] + ' ' + formu.cuota_mensual.toFixed(3));
       if (formu.tipo_gracia != 'Ninguno') {
         const new_time = formu.plazo - formu.periodo_gracia;
         this.myForm.get('plazo_info')?.setValue(new_time + ' meses - ' + formu.periodo_gracia + ' meses de periodo de gracia');
@@ -281,19 +319,19 @@ export class SimulationComponent implements OnInit {
     }
 
   }
-  arrayFlujoNormal(tasa_interes_nominal_anual: number, valor_seg_vehi: number): RowCrono[] {
-    const datos: RowCrono[] = [];
+  arrayFlujoNormal(tasa_interes_nominal_anual: number, valor_seg_vehi: number): Cuota[] {
+    const datos: Cuota[] = [];
 
     for (let i = 0; i < this.frm.plazo; i++) {
 
       // Se calcula el seguro_degravamen por cada periodo
-      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_degravamen / 100;
+      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_desgravamen / 100;
 
       // Se calcula el interes pagado por cada periodo
       this.interes_pagado = this.saldo_inicial * tasa_interes_nominal_anual / 12;
 
       // Se calcula la amortizacion
-      this.amortizacion = this.frm.cuota - this.interes_pagado - this.valor_seg_degra - valor_seg_vehi;
+      this.amortizacion = this.frm.cuota_mensual - this.interes_pagado - this.valor_seg_degra - valor_seg_vehi;
 
       //Saldo final
       this.saldo_final = this.saldo_inicial - this.amortizacion;
@@ -302,34 +340,34 @@ export class SimulationComponent implements OnInit {
       const fecha = addMonths(this.frm.fecha, i);
       const fechaFormateada = format(fecha, 'dd/MM/yyyy');
 
-      const row: RowCrono = {
-        position: i,
-        period: i + 1,
+      const row: Cuota = {
+        $id: i,
+        nCuota: i + 1,
         fecha: fechaFormateada,
-        saldoini: this.saldo_inicial.toFixed(2),
-        amortization: this.amortizacion.toFixed(2),
-        intereses: this.interes_pagado.toFixed(3),
-        seguro_degr: this.valor_seg_degra.toFixed(2),
-        seguro_vehi: valor_seg_vehi.toFixed(2),
-        saldofini: this.saldo_final.toFixed(2),
-        cuota_mensual: this.frm.cuota.toFixed(3)
+        saldoInicial: this.saldo_inicial.toFixed(2),
+        amortizacion: this.amortizacion.toFixed(2),
+        interes: this.interes_pagado.toFixed(3),
+        seguroDesgravamen: this.valor_seg_degra.toFixed(2),
+        seguroVehicular: valor_seg_vehi.toFixed(2),
+        saldoFinal: this.saldo_final.toFixed(2),
+        montoCuota: this.frm.cuota_mensual.toFixed(3)
       }
 
       datos.push(row);
-      this.flujos.push(this.frm.cuota);
+      this.flujos.push(this.frm.cuota_mensual);
       this.saldo_inicial = this.saldo_inicial - this.amortizacion;
 
     }
     return datos;
   }
-  arrayWithTotalGracia(tasa_interes_nominal_anual: number, valor_seg_inmu: number): RowCrono[] {
+  arrayWithTotalGracia(tasa_interes_nominal_anual: number, valor_seg_inmu: number): Cuota[] {
 
-    const datos: RowCrono[] = [];
+    const datos: Cuota[] = [];
     //Meses de plazo de gracia
     for (let i = 0; i < this.frm.periodo_gracia; i++) {
 
       // Se calcula el seguro_degravamen por cada periodo
-      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_degravamen / 100;
+      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_desgravamen / 100;
 
       // Se calcula el interes pagado por cada periodo
       this.interes_pagado = this.saldo_inicial * tasa_interes_nominal_anual / 12;
@@ -341,34 +379,34 @@ export class SimulationComponent implements OnInit {
       //Fecha
       const fecha = addMonths(this.frm.fecha, i)
 
-      const row: RowCrono = {
-        position: i,
-        period: i + 1,
+      const row: Cuota = {
+        $id: i,
+        nCuota: i + 1,
         fecha: format(fecha, 'yyyy-MM-dd'),
-        saldoini: this.saldo_inicial.toFixed(2),
-        amortization: '0.00',
-        intereses: this.interes_pagado.toFixed(3),
-        seguro_degr: this.valor_seg_degra.toFixed(2),
-        seguro_vehi: valor_seg_inmu.toFixed(3),
-        saldofini: this.saldo_final.toFixed(2),
-        cuota_mensual: '0.00'
+        saldoInicial: this.saldo_inicial.toFixed(2),
+        amortizacion: '0.00',
+        interes: this.interes_pagado.toFixed(3),
+        seguroDesgravamen: this.valor_seg_degra.toFixed(2),
+        seguroVehicular: valor_seg_inmu.toFixed(3),
+        saldoFinal: this.saldo_final.toFixed(2),
+        montoCuota: '0.00'
       }
 
       datos.push(row);
-      this.flujos.push(this.frm.cuota);
+      this.flujos.push(this.frm.cuota_mensual);
       this.saldo_inicial = this.saldo_final;
     }
     //Meses de plazo normal
     for (let i = this.frm.periodo_gracia; i < this.frm.plazo; i++) {
 
       // Se calcula el seguro_degravamen por cada periodo
-      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_degravamen / 100;
+      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_desgravamen / 100;
 
       // Se calcula el interes pagado por cada periodo
       this.interes_pagado = this.saldo_inicial * tasa_interes_nominal_anual / 12;
 
       // Se calcula la amortizacion
-      this.amortizacion = this.frm.cuota - this.interes_pagado - this.valor_seg_degra - valor_seg_inmu;
+      this.amortizacion = this.frm.cuota_mensual - this.interes_pagado - this.valor_seg_degra - valor_seg_inmu;
 
       //Saldo final
       this.saldo_final = this.saldo_inicial - this.amortizacion;
@@ -376,33 +414,33 @@ export class SimulationComponent implements OnInit {
       //Fecha
       const fecha = addMonths(this.frm.fecha, i)
 
-      const row: RowCrono = {
-        position: i,
-        period: i + 1,
+      const row: Cuota = {
+        $id: i,
+        nCuota: i + 1,
         fecha: format(fecha, 'yyyy-MM-dd'),
-        saldoini: this.saldo_inicial.toFixed(2),
-        amortization: this.amortizacion.toFixed(2),
-        intereses: this.interes_pagado.toFixed(3),
-        seguro_degr: this.valor_seg_degra.toFixed(2),
-        seguro_vehi: valor_seg_inmu.toFixed(2),
-        saldofini: this.saldo_final.toFixed(2),
-        cuota_mensual: this.frm.cuota.toFixed(3)
+        saldoInicial: this.saldo_inicial.toFixed(2),
+        amortizacion: this.amortizacion.toFixed(2),
+        interes: this.interes_pagado.toFixed(3),
+        seguroDesgravamen: this.valor_seg_degra.toFixed(2),
+        seguroVehicular: valor_seg_inmu.toFixed(2),
+        saldoFinal: this.saldo_final.toFixed(2),
+        montoCuota: this.frm.cuota_mensual.toFixed(3)
       }
 
       datos.push(row);
-      this.flujos.push(this.frm.cuota);
+      this.flujos.push(this.frm.cuota_mensual);
       this.saldo_inicial = this.saldo_final;
     }
 
     return datos;
   }
-  arrayWithParcialGracia(tasa_interes_nominal_anual: number, valor_seg_inmu: number): RowCrono[] {
-    const datos: RowCrono[] = [];
+  arrayWithParcialGracia(tasa_interes_nominal_anual: number, valor_seg_inmu: number): Cuota[] {
+    const datos: Cuota[] = [];
     //Meses de plazo de gracia
     for (let i = 0; i < this.frm.periodo_gracia; i++) {
 
       // Se calcula el seguro_degravamen por cada periodo
-      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_degravamen / 100;
+      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_desgravamen / 100;
 
       // Se calcula el interes pagado por cada periodo
       this.interes_pagado = this.saldo_inicial * tasa_interes_nominal_anual / 12;
@@ -412,33 +450,33 @@ export class SimulationComponent implements OnInit {
       //Fecha
       const fecha = addMonths(this.frm.fecha, i)
 
-      const row: RowCrono = {
-        position: i,
-        period: i + 1,
+      const row: Cuota = {
+        $id: i,
+        nCuota: i + 1,
         fecha: format(fecha, 'yyyy-MM-dd'),
-        saldoini: this.saldo_inicial.toFixed(2),
-        amortization: '0.00',
-        intereses: this.interes_pagado.toFixed(3),
-        seguro_degr: this.valor_seg_degra.toFixed(2),
-        seguro_vehi: valor_seg_inmu.toFixed(2),
-        saldofini: this.saldo_inicial.toFixed(2),
-        cuota_mensual: this.interes_plazo.toFixed(3)
+        saldoInicial: this.saldo_inicial.toFixed(2),
+        amortizacion: '0.00',
+        interes: this.interes_pagado.toFixed(3),
+        seguroDesgravamen: this.valor_seg_degra.toFixed(2),
+        seguroVehicular: valor_seg_inmu.toFixed(2),
+        saldoFinal: this.saldo_inicial.toFixed(2),
+        montoCuota: this.interes_plazo.toFixed(3)
       }
 
       datos.push(row);
-      this.flujos.push(this.frm.cuota);
+      this.flujos.push(this.frm.cuota_mensual);
     }
     //Meses de plazo normal
     for (let i = this.frm.periodo_gracia; i < this.frm.plazo; i++) {
 
       // Se calcula el seguro_degravamen por cada periodo
-      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_degravamen / 100;
+      this.valor_seg_degra = this.saldo_inicial * this.frm.seguro_desgravamen / 100;
 
       // Se calcula el interes pagado por cada periodo
       this.interes_pagado = this.saldo_inicial * tasa_interes_nominal_anual / 12;
 
       // Se calcula la amortizacion
-      this.amortizacion = this.frm.cuota - this.interes_pagado - this.valor_seg_degra - valor_seg_inmu;
+      this.amortizacion = this.frm.cuota_mensual - this.interes_pagado - this.valor_seg_degra - valor_seg_inmu;
 
       //Saldo final
       this.saldo_final = this.saldo_inicial - this.amortizacion;
@@ -447,21 +485,21 @@ export class SimulationComponent implements OnInit {
       //Fecha
       const fecha = addMonths(this.frm.fecha, i)
 
-      const row: RowCrono = {
-        position: i,
-        period: i + 1,
+      const row: Cuota = {
+        $id: i,
+        nCuota: i + 1,
         fecha: format(fecha, 'yyyy-MM-dd'),
-        saldoini: this.saldo_inicial.toFixed(2),
-        amortization: this.amortizacion.toFixed(2),
-        intereses: this.interes_pagado.toFixed(3),
-        seguro_degr: this.valor_seg_degra.toFixed(2),
-        seguro_vehi: valor_seg_inmu.toFixed(2),
-        saldofini: this.saldo_final.toFixed(2),
-        cuota_mensual: this.frm.cuota.toFixed(3)
+        saldoInicial: this.saldo_inicial.toFixed(2),
+        amortizacion: this.amortizacion.toFixed(2),
+        interes: this.interes_pagado.toFixed(3),
+        seguroDesgravamen: this.valor_seg_degra.toFixed(2),
+        seguroVehicular: valor_seg_inmu.toFixed(2),
+        saldoFinal: this.saldo_final.toFixed(2),
+        montoCuota: this.frm.cuota_mensual.toFixed(3)
       }
 
       datos.push(row);
-      this.flujos.push(this.frm.cuota);
+      this.flujos.push(this.frm.cuota_mensual);
       this.saldo_inicial = this.saldo_final;
     }
 
@@ -471,7 +509,7 @@ export class SimulationComponent implements OnInit {
     if (!this.myForm.invalid) {
 
       // Calcular el valor del seguro del inmueble
-      const valor_seg_inmu = this.frm.price * (this.frm.seguro_vehicular / 100) / 12
+      const valor_seg_inmu = this.frm.precio_venta * (this.frm.seguro_vehicular / 100) / 12
 
       // Asignar valor a saldo pendiente
       this.saldo_inicial = this.frm.monto_financiar;
@@ -503,7 +541,7 @@ export class SimulationComponent implements OnInit {
       this.tir = finance.IRR(-this.frm.monto_financiar, ...this.flujos);
       this.van = finance.NPV(this.tir, -this.frm.monto_financiar, ...this.flujos);
       //=> 18.82
-      this.dataSource = new MatTableDataSource<RowCrono>(this.rowscrono);
+      this.dataSource = new MatTableDataSource<Cuota>(this.rowscrono);
       this.dataSource.paginator = this.paginator;
     }
   }
@@ -521,7 +559,7 @@ export class SimulationComponent implements OnInit {
     if (this.aceptaTerminos) {
 
       alert("Términos y Condiciones aceptados. ¡Proceder con Finalizar!");
-      this.router.navigate(['/home', this.id]);
+      this.router.navigate(['/home', this.$id]);
 
     } else {
 

@@ -4,7 +4,7 @@
       <img src="../../../assets/img/Ima_Login.webp" alt="representacion-login">
     </div>
     <div class="formulario">
-      <form [formGroup]="myForm" autocomplete="on">
+      <form [formGroup]="myForm" autocomplete="on" (ngSubmit)="saveUser()">
         <div class="logo">
           <span>Registro</span>
         </div>
@@ -115,7 +115,7 @@
           El valor debe ser mayor a 0</div>
 
         <div class="boton-guardar">
-          <button [disabled]="myForm.invalid" type="button">
+          <button [disabled]="myForm.invalid" type="button" (click)="saveUser()">
             Registrar
           </button>
 

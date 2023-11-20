@@ -1,4 +1,4 @@
 export const environment = {
     production: false,
-    basePath: 'http://localhost:3000',
+    basePath: 'https://credito-vehicular.azurewebsites.net/api/v1',
   };

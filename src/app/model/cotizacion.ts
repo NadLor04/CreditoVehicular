@@ -1,18 +1,18 @@
-export interface Cotizacion {
-  client_id: number
+export interface Credito {
+  user_id: number
   moneda: string
-  entidad: string
-  price: number
-  initial: number
+ // entidad: string
+  precio_venta: number
+  cuota_inicial: number
   tipo_tasa: string
   tasa: number
   plazo: number
   perInitial: number
-  monto_solicitado: number
+  monto_solicitar: number
   monto_financiar: number
-  cuota: number
+  cuota_mensual: number
   seguro_vehicular: number
-  seguro_degravamen: number
+  seguro_desgravamen: number
   tipo_gracia: string
   periodo_gracia: number
   comision: number
@@ -21,16 +21,16 @@ export interface Cotizacion {
   tna: number
 }
 
-export interface RowCrono {
-  position: number
-  period: number
+export interface Cuota {
+  $id: number
+  nCuota: number
   fecha: string
-  saldoini: string
-  amortization: string
-  intereses: string
-  seguro_degr: string
-  seguro_vehi: string
-  saldofini: string
-  cuota_mensual: string
+  saldoInicial: string
+  amortizacion: string
+  interes: string
+  seguroDesgravamen: string
+  seguroVehicular: string
+  saldoFinal: string
+  montoCuota: string
 
 }

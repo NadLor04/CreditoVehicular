@@ -42,20 +42,27 @@ export class RegisterComponent {
 
   saveUser() {
 
-    const user:User = {
-      id: 0,
-      username: this.myForm.get('name')!.value + ' ' + this.myForm.get('lastname')!.value,
-      name: this.myForm.get('name')!.value,
-      lastname: this.myForm.get('lastname')!.value,
+    const user:any = {
+      //username: this.myForm.get('name')!.value + ' ' + this.myForm.get('lastname')!.value,
+      nombre: this.myForm.get('name')!.value,
+      apellido: this.myForm.get('lastname')!.value,
       dni: this.myForm.get('dni')!.value,
-      birth: this.myForm.get('birth')!.value,
-      phone: this.myForm.get('phone')!.value,
-      correo: this.myForm.get('correo')!.value,
+      telefono: this.myForm.get('phone')!.value,
+      email: this.myForm.get('correo')!.value,
       password: this.myForm.get('password')!.value,
-      profession: this.myForm.get('profession')!.value,
-      income: this.myForm.get('income')!.value,
+      //income: this.myForm.get('income')!.value,
 
     };
+
+     /*
+  *[{"id":1,
+  * "nombre":"string",
+  * "apellido":"string",
+  * "dni":"stringst",
+  * "telefono":"string",
+  * "email":"user@example.com",
+  * "password":"string"}]
+  * */
 
     this.userService.addUser(user).subscribe({
       next: (data) => {
@@ -68,7 +75,7 @@ export class RegisterComponent {
       },
       error: (err) => {
         console.log(err);
-        this.snackBar.open('Ya existe un empleado con el mismo DNI', '', {
+        this.snackBar.open('Ya existe un usuario con el mismo DNI', '', {
           duration: 2000,
         });
 
