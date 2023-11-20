@@ -37,7 +37,7 @@ jobs:
 
      # Route file renaming
       - name: Rename index routing
-        run: mv dist/tf-finanzas/index.html dist/tf-finanzas/404.html
+        run: mv dist/CreditoVehicular/index.html dist/CreditoVehicular/404.html
 
     # Deploy to Gb pages
       - name: Deploy to Pages
