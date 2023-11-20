@@ -7,7 +7,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
   styleUrls: ['./lista-banco.component.css']
 })
 export class ListaBancoComponent implements OnInit {
-  id!: number;
+  $id!: number;
 
   constructor(private route: ActivatedRoute,
     private router: Router){
@@ -15,13 +15,13 @@ export class ListaBancoComponent implements OnInit {
 
   ngOnInit(){
     this.route.parent?.params.subscribe((params: Params) => {
-      this.id = +params['id'];
-      console.log('ID:', this.id);
+      this.$id = +params['id'];
+
     });
   }
 
   simuladorGo(num : number){
-    this.router.navigate(['/home', this.id, 'simulador', num]);
+    this.router.navigate(['/home', this.$id, 'simulador', num]);
   }
 
 }

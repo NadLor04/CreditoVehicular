@@ -101,11 +101,23 @@
             "netlifyToken": "",
             "siteId": ""
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
   },
   "cli": {
-    "analytics": "7bd8be91-b7de-4fc6-bf7b-ae324339407a"
+    "analytics": "7bd8be91-b7de-4fc6-bf7b-ae324339407a",
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   }
 }
