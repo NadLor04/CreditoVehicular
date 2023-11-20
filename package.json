@@ -6,7 +6,7 @@
     "json:server": "json-server --watch server/db.json",
     "start": "ng serve",
     "build": "ng build",
-    "build:prod": "ng build --configuration production --base-href /CreditoVehicular/",
+    "build:prod": "ng build --configuration production --base-href /tf-finanzas/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint"
